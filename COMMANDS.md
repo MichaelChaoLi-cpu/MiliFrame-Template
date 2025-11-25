@@ -7,12 +7,23 @@ Team members can extend it as needed.
 
 
 ## Pull from Mike's Github to build a new project
-setting your project name
+### setting your project name
 ```
-export myproj YOUR_PROJECT_NAME
+export myproj=YOUR_PROJECT_NAME
 ```
 
-pull the repo
+### store your myproj in the .env
+```bash
+echo -n > .env
+echo "myproj=ESG08b3a" >> .env
+set -a
+source .env
+set +a
+
+echo $myproj # confirm
+```
+
+### pull the repo
 ```
 git clone https://github.com/MichaelChaoLi-cpu/MiliFrame-Template.git
 mv MiliFrame-Template $myproj
@@ -21,9 +32,13 @@ cd $myproj
 git remote rename origin upstream
 ```
 
-link this folder to your repo
+### link this folder to your repo
 ```
-git remote add origin REPO_ADD_in_GITHUB.git
+export REPO_ADD_in_GITHUB=git_repo_with_tokens
+```
+then set remote
+```
+git remote add origin $REPO_ADD_in_GITHUB
 git push -u origin main
 ```
 
@@ -40,8 +55,6 @@ pre-commit install
 
 pip install dvc
 dvc init
-
-uv sync
 ```
 
 ### If HPC or Local
@@ -73,10 +86,14 @@ For building experiments
 ```bash
 chmod +x ./scripts/end_experiment.sh
 chmod +x ./scripts/begin_experiment.sh
+chmod +x ./scripts/update_env.sh
 
 # Run for a new experiment
 ./scripts/end_experiment.sh
 ./scripts/begin_experiment.sh 001
+
+# update the env information
+./scripts/update_env.sh
 ```
 
 ---

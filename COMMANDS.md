@@ -34,7 +34,11 @@ git remote rename origin upstream
 
 ### link this folder to your repo
 ```
-git remote add origin REPO_ADD_in_GITHUB.git
+export REPO_ADD_in_GITHUB=git_repo_with_tokens
+```
+then set remote
+```
+git remote add origin $REPO_ADD_in_GITHUB
 git push -u origin main
 ```
 

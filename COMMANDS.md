@@ -1,19 +1,17 @@
-# Common Commands Handbook
+# Commands Handbook
 
-This file collects frequently used commands for Git, DVC, Conda, and HPC.
-Team members can extend it as needed.
+Reference for setting up and maintaining a MiliFrame project.
+Run all commands from the **project root** unless stated otherwise.
 
 ---
 
+## Chapter 1 — Initialization (do once per project)
 
-## Pull from Mike's Github to build a new project
-### setting your project name
-```
+### 1.1 Clone the template and rename
+
+```bash
 export myproj=YOUR_PROJECT_NAME
-```
 
-### pull the repo
-```
 git clone https://github.com/MichaelChaoLi-cpu/MiliFrame-Template.git
 mv MiliFrame-Template $myproj
 cd $myproj
@@ -21,113 +19,169 @@ cd $myproj
 git remote rename origin upstream
 ```
 
-### link this folder to your repo
-```
-export REPO_ADD_in_GITHUB=git_repo_with_tokens
-```
-then set remote
-```
+### 1.2 Link to your own repository
+
+```bash
+export REPO_ADD_in_GITHUB=https://<token>@github.com/<user>/<repo>.git
+
 git remote add origin $REPO_ADD_in_GITHUB
 git push -u origin main
 ```
 
+### 1.3 Set up environment variables (.env)
 
-### store your myproj in the .env
+The `.env` file is loaded by every notebook and is **never committed to git**.
+
 ```bash
 echo -n > .env
-echo "myproj=$myproj" >> .env
-set -a
-source .env
-set +a
+echo "myproj=$myproj"          >> .env
+echo "PROJECT_ROOT=$(pwd)"     >> .env
+echo "PYTHON_VERSION=3.12"     >> .env   # change if you need a different version
 
-echo $myproj # confirm
-
-echo "PROJECT_ROOT=$(pwd)" >> .env
+# Load into current shell to verify
+set -a && source .env && set +a
 cat .env
 ```
 
----
-
-## Run from scratch to build a new project
+Expected `.env` content:
 ```
-conda env create -f environment.yml 
-conda activate $myproj ## it is recommended that use you project as the env name
+myproj=YOUR_PROJECT_NAME
+PROJECT_ROOT=/absolute/path/to/your/project
+PYTHON_VERSION=3.12
+```
 
-pip install -r requirments.txt
-pip install jupytext nbconvert nbformat
-pip install pre-commit
+### 1.4 Create the conda environment (Python 3.12)
+
+```bash
+# If variables are not set in your current shell, reload them first:
+set -a && source .env && set +a
+
+conda create -n $myproj python=${PYTHON_VERSION:-3.12} -y
+conda activate $myproj
+```
+
+> If the project ships a pre-built `environment.yml`, use
+> `conda env create -f environment.yml` instead.
+
+### 1.5 Install Python dependencies
+
+```bash
+pip install -r requirements.txt
+pip install jupytext nbconvert nbformat pre-commit dvc
 pre-commit install
+```
 
-pip install dvc
+### 1.6 Install the pip auto-freeze hook (once per conda env)
+
+This makes every `pip install / uninstall / upgrade` in your terminal
+automatically update `requirements.txt`.
+
+```bash
+chmod +x ./scripts/setup_conda_hooks.sh
+./scripts/setup_conda_hooks.sh
+conda activate $myproj          # re-activate to apply the hook
+type pip                        # should print: pip is a shell function
+```
+
+### 1.7 Initialize DVC and configure remote storage
+
+```bash
 dvc init
 ```
 
-### If HPC or Local
-HPC
-```
-dvc remote add -d hpc /home/pj24001881/share/dvc_remote
-```
-
-Local
-```
-dvc remote add -d ANYTHING YOUR/DATA/LOCATION(Another Folder)
+HPC:
+```bash
+dvc remote add -d hpc /home/<group>/share/dvc_remote
 ```
 
-
-## Run 
-```
-conda env create -f environment.yml
-conda activate $myproj
-pip install -r requirements.txt
-pre-commit install
-dvc pull
+Local (another folder):
+```bash
+dvc remote add -d local /path/to/your/data/store
 ```
 
 ---
 
-## 🔹 Scripts
+## Chapter 2 — Maintenance (day-to-day)
 
-For building experiments
+### 2.1 Start a new session (joining an existing project)
+
 ```bash
-chmod +x ./scripts/end_experiment.sh
-chmod +x ./scripts/begin_experiment.sh
-chmod +x ./scripts/update_env.sh
+conda activate $myproj
+set -a && source .env && set +a
+dvc pull                        # fetch latest data/artifacts
+```
 
-# Run for a new experiment
-./scripts/end_experiment.sh
-./scripts/begin_experiment.sh 001
+### 2.2 Package management
 
-# update the env information
+```bash
+pip install <package>           # requirements.txt auto-updated by hook
+pip uninstall <package>         # same
+```
+
+To manually sync if the hook was not active:
+```bash
 ./scripts/update_env.sh
 ```
 
----
+### 2.3 Run an experiment
 
-## 🔹 DVC
+Experiments are versioned entirely through **git branches + DVC**.
 
+**Start:**
 ```bash
-# Initialize DVC
-dvc init
-
-# Track a dataset with DVC
-dvc add data/raw/big_dataset.csv
-git add data/raw/big_dataset.csv.dvc .gitignore
-git commit -m "track dataset"
-
-# Push to remote (HPC store)
-dvc push
-
-# Pull from remote
-dvc pull
-
-# Reproduce pipeline
-dvc repro
+git checkout dev && git pull
+git checkout -b exp/<id>-<short-description>   # e.g. exp/001-baseline-model
 ```
 
----
+**Work and commit:**
+```bash
+# Edit notebooks, scripts, params.yaml ...
 
-## 🔹 HPC (SLURM example)
+dvc add data/processed/my_output.csv           # track large outputs with DVC
+git add data/processed/my_output.csv.dvc params.yaml notebooks/
+git commit -m "exp: 001 - baseline model"
+dvc push
+```
+
+**Close — merge back to dev:**
+```bash
+git checkout dev
+git merge exp/001-baseline-model
+git push && dvc push
+```
+
+**Revisit a past experiment:**
+```bash
+git checkout exp/001-baseline-model
+dvc pull                                        # restores data/artifacts for that run
+```
+
+### 2.4 DVC — track data and push/pull
 
 ```bash
+dvc add data/raw/my_dataset.csv
+git add data/raw/my_dataset.csv.dvc .gitignore
+git commit -m "data: track my_dataset"
 
+dvc push                        # upload to remote
+dvc pull                        # download from remote
+dvc repro                       # re-run pipeline (dvc.yaml)
+```
+
+### 2.5 Git commit conventions
+
+| Prefix | Use |
+|--------|-----|
+| `feat` | new feature |
+| `fix` | bug fix |
+| `data` | dataset changes |
+| `exp` | experiment result |
+| `docs` | documentation |
+| `refactor` | code restructure |
+| `chore` | tooling / config |
+
+### 2.6 HPC (SLURM) — placeholder
+
+```bash
+# Add your cluster-specific sbatch commands here
 ```

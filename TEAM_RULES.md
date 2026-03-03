@@ -1,275 +1,111 @@
-# Team Collaboration Rules for Jupyter + Git + DVC + HPC
+# Team Rules
 
-This document defines how our team manages code, notebooks, data, and experiments.
-It ensures **reproducibility**, **clarity**, and **efficient collaboration** across our international team.
-
----
-
-## 0) Principles
-- 1. Data-centric system            
-The code, file structure, and documentation are all centered around making data generation reproducible. The core is the data and its related descriptions.         
-- 2. exp for feasibility, dev for readability         
-The exp branch tests feasibility, and the dev branch refactors to ensure code and document readability.         
-exp data folder is recommended to remove. exp dvc only keep the notebooks and records.         
-- 3. test is for data       
-The test should only focus on the data shape, and some necessary vaisualizations. The records should be keep in the corresponding .ipynb for review.                     
-- 4. Reuse, not redefine          
-If a function could be resued, then move it to a module and reuse, rather than redifine.          
+Defines how we manage code, data, and experiments for reproducible, collaborative work.
 
 ---
 
-## 1) Repository Structure
+## 1) Principles
+
+1. **Data-centric** — code and structure exist to make data generation reproducible.
+2. **exp for feasibility, dev for readability** — experiment on branches, refactor on `dev`.
+3. **Tests are for data** — focus on shape, distributions, and key visualisations; keep records in `.ipynb`.
+4. **Reuse, not redefine** — extract reusable logic into modules rather than duplicating it.
+
+---
+
+## 2) Repository Structure
 
 ```
 myproj/
-├─ notebooks/         # Source .ipynb (outputs stripped, clean for Git)
-├─ test_notebooks/    # Test for notebooks .ipynb (does not clean by hook but control by dvc)
-├─ nbs/               # Paired .py (percent format, for Git diff/review)
-├─ data/              # Datasets (tracked by DVC, ignored by Git)
-├─ artifacts/runs/    # Executed notebooks & run outputs (tracked by DVC)
-├─ reports/           # Metrics/plots (tracked by DVC)
-├─ scripts/           # Necessary Executable .sh       
-├─ actionplan/        # Task plan abortion diagram and corresponding instructions, named by the planned version number. e.g. v0.0.0.md       
-├─ README.md          # README file       
-├─ experiment_log.md  # Records of experiments       
-├─ params.yaml        # Centralized parameters for experiments
-├─ dvc.yaml           # Pipeline definition
-├─ .jupytext.toml     # Pairing config for ipynb/py
-├─ .pre-commit-config.yaml        
-├─ .env               # Record env variables         
-├─ .exp_online        # Record experience code                   
-└─ .gitignore
+├── notebooks/          # Source .ipynb (outputs stripped by pre-commit)
+├── test_notebooks/     # Test notebooks (DVC-controlled, outputs kept)
+├── nbs/                # Paired .py files (percent format, for Git diff)
+├── data/               # Datasets (DVC-tracked, Git-ignored)
+├── reports/            # Metrics and plots (DVC-tracked)
+├── scripts/            # Shell utilities
+├── actionplan/         # Workflow diagrams, named by version (e.g. v0.1.0.md)
+├── params.yaml         # Centralised experiment parameters
+├── dvc.yaml            # Pipeline definition
+├── experiment_log.md   # Log of completed experiments
+├── pyproject.toml      # Project metadata and dependencies
+├── .jupytext.toml      # ipynb ↔ py pairing config
+├── .env                # Local environment variables (not committed)
+└── .gitignore
 ```
-
-```
-artifacts/runs/<exp_id>/
-├─ manifest.json            # Metadata snapshot (commit SHA, environment, dataset hashes)
-├─ params.snapshot.yaml     # Exact parameters used for this run
-├─ metrics.json             # Final key metrics
-├─ metrics_history.csv      # Training/evaluation metrics over time (per epoch/step)
-├─ data/                    # Data snapshot (small subset or DVC link, not full raw dataset)
-│  ├─ processed_sample.parquet
-│  └─ split_info.json
-├─ notebooks/               # Notebooks directly related to this run (exploration/preprocessing)
-│  ├─ prep_data_exp42.ipynb
-│  └─ analysis_exp42.ipynb
-├─ model/
-│  ├─ checkpoint.pt         # Main model checkpoint
-│  └─ tokenizer/            # Tokenizer or vocabulary files if applicable
-├─ logs/
-│  ├─ train.log             # Training console log
-│  ├─ errors.log            # Error/exception log
-│  └─ tb/                   # TensorBoard event files
-├─ plots/
-│  ├─ loss_curve.png        # Training/validation loss curve
-│  └─ confusion_matrix.png  # Example evaluation plot
-├─ predictions/
-│  └─ val_preds.parquet     # Validation predictions for analysis
-└─ reports/
-   └─ report.md             # Human-readable experiment report (goal, setup, results, insights)
-```
-
----
-## 2) Project Initialization Rules
--	1.	**Clear Planning Before Launch**         
-A project should only be initiated once a reasonably clear action plan has been developed and a corresponding workflow diagram has been created.        
--	2.	**Workflow-Based Experimentation**           
-All experiments and feature development should be structured according to the workflow diagram, ensuring logical segmentation and traceability.
--	3.	**Experiment and Feature Logging**           
-The detailed process of experiments, feature implementations, and incremental progress should be documented in experiment_log.md.
-For ongoing project management, the same updates should also be recorded in the backlog or Notion workspace.         
--	4.	**Versioning Scheme: major.minor.patch**          
-	•	Major – Changes that affect the entire workflow and invalidate or alter previously completed downstream components.         
-	•	Minor – Changes that affect the entire workflow but only impact upcoming components (e.g., introducing new features).       
-	•	Patch – Incremental improvements or refinements within the current workflow segment.         
-Version updates must follow this convention strictly.          
--	5.	**Version Update Requirement**          
-The version number must be updated whenever any action file is modified to reflect the current state of the project.       
 
 ---
 
 ## 3) Golden Rules
 
-1. **Code → Git**
-2. **Data/Outputs → DVC**
-3. **Parameters → `params.yaml`**
-4. Start an experiment: `./scripts/begin_experiment.sh ddd`
-5. End an experiment: `./scripts/end_experiment.sh`        
-6. Upload code in runs_ddd `./scripts/clean_experiment_code.sh`
-7. `uv add` and `uv remove`
+| What | Where |
+|------|-------|
+| Code | Git |
+| Data & large outputs | DVC |
+| Parameters | `params.yaml` |
+| Packages | `pip install / uninstall` (auto-updates `requirements.txt`) |
+| Experiments | `git checkout -b exp/<id>-<topic>` + DVC |
 
 ---
 
 ## 4) Git Practices
 
-- Commit paired `.py` files in `nbs/` for readable diffs; keep `notebooks/` outputs stripped via pre-commit.
-- Never commit raw datasets or large artifacts to Git.
+**Branches**
 
-### Commit Standard
-#### Types:
-- `feat:` A new feature (e.g., new model, new module, new functionality).
-- `fix:` A bug fix (e.g., code error, wrong parameter, pipeline bug).
-- `docs:` Documentation changes only (README, docstrings, comments).
-- `style:` Code style changes (formatting, indentation, naming) without affecting logic.
-- `refactor:` Code refactoring that improves readability/structure but doesn’t change behavior.
-- `perf:` Performance improvements (e.g., faster training, memory optimization).
-- `test:` Adding or modifying tests.
-- `data:` Adding, updating, or cleaning datasets tracked via DVC.
-- `exp:` Experiment-related commits (e.g., new run config, changed hyperparameters).
-- `build:` Changes to environment setup, dependencies, or build scripts (e.g., environment.yml, Dockerfile).
-- `ci:` Changes to CI/CD configuration (e.g., GitHub Actions, pre-commit hooks).
-- `chore:` Other maintenance tasks that don’t affect source or data.
-- `revert:` Revert a previous commit.
+| Branch | Purpose |
+|--------|---------|
+| `main` | Stable, reproducible. PR required, no direct push. |
+| `dev` | Integration of validated experiments. |
+| `exp/<id>-<topic>` | Active experiment (e.g. `exp/001-baseline`). |
+| `feature/<scope>-<desc>` | Productionising a proven experiment. |
+| `data/<dataset>-<change>` | Data ingestion / cleaning. |
+| `spike/<topic>` | Throwaway prototype, may never merge. |
+| `hotfix/<issue>` | Urgent fix off `main`. |
 
-#### Scope
-Use to indicate the area affected, e.g.:
-model, data, pipeline, notebooks, nbs, docs, infra
+Flow: `spike/*` → `exp/*` → `feature/*` → `dev` → `main`
 
-#### Summary
-Use imperative mood (e.g., “add” not “added” or “adds”).
-Keep it concise (≤ 72 characters).
+**Commit format:** `<type>(<scope>): <imperative summary ≤ 72 chars>`
 
-#### Example:
+| Type | Use |
+|------|-----|
+| `feat` | New feature or model |
+| `fix` | Bug fix |
+| `data` | Dataset changes |
+| `exp` | Experiment config or result |
+| `refactor` | Code restructure, no behaviour change |
+| `docs` | Documentation only |
+| `build` | Environment, dependencies, or build scripts |
+| `chore` | Tooling / config / maintenance |
+
 ```
-feat(model): add custom loss with MSE + regularization
-fix(pipeline): correct DVC stage for dataset merge
-docs: update README with DVC usage instructions
-data: add CMIP6 temperature dataset for 2000–2050
-exp: run Experiment 02 with new hyperparameter grid
+feat(model): add cosine LR scheduler
+exp: 003 - grid search over regularisation strengths
+data: add CMIP6 temperature 2000-2050
 ```
-
-
-### Core branches
-
-`main`
-- stable, reproducible code + configs. Only “promoted” models land here.
-
-`dev`
-- integration of recent validated experiments. Can be ahead of main.
-
-Protect main (PR required, CI checks, no direct pushes). Keep dev lightly protected.
-
-### Work branches (short-lived, purpose-driven)
-
-Experiment: `exp/<id>-<topic>`
-- For trying ideas & tuning; may be messy.
-- Examples: exp/042-longer-context, exp/043-lr-warmup-10k
-
-Spike/Prototype: `spike/<topic>`
-- Throwaway exploration; benchmark feasibility; may never merge.
-- Example: spike/moe-routing
-
-Feature (productionize a win): `feature/<scope>-<desc>`
-- After an experiment proves value; tidy code, add tests/docs.
-- Example: feature/model-transformer-encoder
-
-Data Ops: `data/<dataset>-<change>`
-- Schema/ingest/cleaning tracked via DVC.
-- Example: data/modis-reproj-v1
-
-Hotfix: `hotfix/<issue>-<desc>`
-- Urgent fix off main.
-
-Rule of thumb
-- New idea? start spike/* → if promising, cut exp/* with proper tracking → once validated, promote via feature/* and merge to dev → release to main.
-
 
 ---
 
 ## 5) DVC Practices
 
-- Track large files and executed notebooks with DVC:
-  ```bash
-  dvc add data/raw/big_dataset.parquet
-  git add data/raw/big_dataset.parquet.dvc .gitignore
-  git commit -m "track dataset with DVC"
-  dvc push
-  ```
-- Always `dvc push` after adding/updating data/models so collaborators can `dvc pull`.
-- Configure shared cache on HPC for group collaboration:
+```bash
+dvc add data/raw/dataset.parquet
+git add data/raw/dataset.parquet.dvc .gitignore
+git commit -m "data: track dataset"
+dvc push
+```
+
+- Always `dvc push` after updating data or artifacts.
+- HPC shared cache (run once):
   ```bash
   dvc config cache.shared group
   dvc config cache.type hardlink,symlink
-  dvc config cache.protected true
   ```
 
 ---
 
-## 6) HPC Remote Storage
+## 6) Notebook Rules
 
-- Default DVC remote (edit to your real path):
-  ```
-  /lustre/share/<your-group>/dvcstore
-  ```
-- Set it as default once per repo:
-  ```bash
-  dvc remote add -d hpc /lustre/share/<your-group>/dvcstore
-  ```
-- Permissions tip (run once, admin or group owner):
-  ```bash
-  chmod -R g+rwX /lustre/share/<your-group>/dvcstore
-  find /lustre/share/<your-group>/dvcstore -type d -exec chmod g+s {} \;
-  ```
+Every notebook must start with:
 
----
-
-## 7) Notebook Workflow
-
-- Keep **source** notebooks in `notebooks/` (outputs stripped by pre-commit + nbstripout).
-
-- Code Requirement:
-use relative address only, and in the begining of the notebook:
-```
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-os.chdir(os.getenv("PROJECT_ROOT"))
-```
-
-- Code Requirement:
-Standard and third-party libraries first
-Internal project imports afterwards
-Absolute imports preferred over relative imports.
-Within each section, sort imports alphabetically
-Put a blank line in between each section
-Separate “from  import ” from standard imports
-Example:
-```
-import numpy as np
-import os
-
-from my_project.utils import helper_function
-```
-
----
-
-## 8) Experiment Tracking
-
-- Centralize parameters in `params.yaml` and reference them in notebooks.
-- Use MLflow to log metrics, params, and artifacts. Always tag the Git commit and (if applicable) the DVC data version.
-- Store plots under `reports/` and log them to MLflow; track with DVC if needed for long-term storage.
-
----
-
-## 9) Collaboration Rhythm
-
-- **Start of day / machine switch**: `git pull && dvc pull`
-- **End of session**: `git push && dvc push`
-- **Before heavy changes**: branch off `main`
-- **After successful run**: save outputs to `artifacts/runs/` and push via DVC
-
----
-
-## 10) HPC Jobs (SLURM or similar)
-
-- Submit heavy compute via the scheduler; write outputs (logs, metrics, executed notebooks) to a unique `artifacts/runs/<timestamp_label>/`.
-- Ensure job scripts exit non-zero on failure so pipelines (e.g., `dvc repro`) can detect errors.
-
----
-
-## 11) .env: Folder Address
-- All notebook should start from
 ```python
 import os
 from dotenv import load_dotenv
@@ -278,35 +114,72 @@ load_dotenv()
 os.chdir(os.getenv("PROJECT_ROOT"))
 ```
 
----
+Import order: standard library → third-party → internal, each group alphabetically sorted.
 
+```python
+import os
 
-## 12) Environment Management
+import numpy as np
 
-- Create environment:
-  ```bash
-  conda env create -f environment.yml
-  conda activate myproj
-  ```
-
-- UV add and remove package
-```bash
-pip install uv
-uv add numpy # install
-uv remove numpy #uninstall
+from myproj.utils import helper
 ```
 
 ---
 
-## 13) Security & Secrets
+## 7) Experiment Workflow
 
-- Never commit credentials. Use `.env` + a secret manager or HPC-provided key vaults.
-- Keep access to `/lustre/share/<your-group>/dvcstore` group-restricted.
+```bash
+git checkout dev && git pull
+git checkout -b exp/001-description
+
+# work ...
+
+dvc add <large outputs>
+git add . && git commit -m "exp: 001 - description"
+dvc push
+
+git checkout dev && git merge exp/001-description
+git push && dvc push
+```
+
+To revisit: `git checkout exp/001-description && dvc pull`
 
 ---
 
-## 14) Ownership & Maintenance
+## 8) Environment Management
 
-- The repo owner maintains `main` branch protection, pre-commit config, and DVC remote configuration.
-- Each experiment owner documents key runs under `reports/` and ensures `dvc push` is complete.
-              
+See `COMMANDS.md` for full setup instructions.
+
+```bash
+pip install <package>       # requirements.txt auto-updated
+pip uninstall <package>     # same
+```
+
+---
+
+## 9) Collaboration Rhythm
+
+- **Start of session:** `git pull && dvc pull`
+- **End of session:** `git push && dvc push`
+- **Never** commit raw data, credentials, or `.env` to Git.
+
+---
+
+## 10) Versioning (`pyproject.toml`)
+
+`major.minor.patch`
+
+| Level | Trigger |
+|-------|---------|
+| Major | Breaks or invalidates existing downstream components |
+| Minor | Adds new components without breaking existing ones |
+| Patch | Incremental improvement within the current segment |
+
+Update the version whenever an `actionplan/` file is modified.
+
+---
+
+## 11) Security
+
+- Store secrets in `.env` only — never commit them.
+- Restrict DVC remote access to the project group (`chmod g+rwX`).

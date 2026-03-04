@@ -178,6 +178,7 @@ dvc repro                       # re-run pipeline (dvc.yaml)
 | `exp` | experiment result |
 | `docs` | documentation |
 | `refactor` | code restructure |
+| `build` | Environment, dependencies, or build scripts |
 | `chore` | tooling / config |
 
 ### 2.6 HPC (SLURM) — placeholder

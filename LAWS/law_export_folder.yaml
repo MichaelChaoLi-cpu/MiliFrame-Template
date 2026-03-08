@@ -1,0 +1,110 @@
+
+
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$title: "Jiazi Law: export_folder"
+
+version: 0.1.0
+law_type: export_folder
+
+purpose: |
+  Define the required structure of the `exports/` directory produced by an
+  analysis repository so that Jiazi can automatically ingest analysis artifacts
+  (figures, tables, code, metadata, and actionbrief) and generate manuscripts.
+
+principles:
+  - The export folder is the **only interface** between an analysis repository and Jiazi.
+  - All scientific artifacts used in the manuscript must appear in this folder.
+  - Files must be deterministic and reproducible.
+  - Paths must be relative to the `exports/` root.
+
+required_structure:
+  exports:
+    figures:
+      description: Final figures used in the manuscript.
+      file_pattern: "fig*.png | fig*.jpg"
+      naming_rule: "figXX_description.ext"
+      example:
+        - fig01_global_distribution.png
+        - fig02_model_accuracy.png
+
+    tables:
+      description: Final tables used in the manuscript.
+      file_pattern: "Table*.xlsx"
+      naming_rule: "TableX_description.xlsx"
+      example:
+        - Table1_DataSummary.xlsx
+        - Table2_ModelPerformance.xlsx
+
+    code:
+      description: Minimal reproducible code required to regenerate the core results.
+      required_files:
+        - run_analysis.py
+      optional_files:
+        - modelling.py
+        - data_processing.py
+        - utils/
+
+      rules:
+        - run_analysis.py must reproduce all exported figures and tables.
+        - code should not depend on notebook execution.
+
+    configs:
+      description: Configuration files used for the analysis.
+      optional: true
+      examples:
+        - params.yaml
+        - experiment_config.yaml
+
+    metadata:
+      description: Structured metadata used by Jiazi for explanation.
+      required_files:
+        - variable_dictionary.yaml
+        - dataset_dictionary.yaml
+
+    actionbrief.yaml:
+      description: |
+        Core interface file describing datasets, variables, figures,
+        tables, and the analytical workflow.
+      requirement: mandatory
+
+integration_rules:
+  - All figures referenced in `actionbrief.yaml` must exist in `exports/figures/`.
+  - All tables referenced in `actionbrief.yaml` must exist in `exports/tables/`.
+  - Variables described in `variable_dictionary.yaml` must appear in
+    `actionbrief.variableDictionary`.
+  - Dataset entries must appear in `dataset_dictionary.yaml`.
+
+naming_conventions:
+  figures_prefix: "fig"
+  tables_prefix: "Table"
+
+validation:
+  checks:
+    - verify_required_directories
+    - verify_actionbrief_exists
+    - verify_figures_match_dictionary
+    - verify_tables_match_dictionary
+    - verify_metadata_consistency
+
+output_target:
+  description: |
+    The entire exports folder can be copied directly into a Jiazi SHOW
+    directory. Jiazi will then automatically load:
+      - figures
+      - tables
+      - code
+      - actionbrief
+      - metadata
+
+example_mapping:
+  exports:
+    figures: "SHOW_xxx/figures/"
+    tables: "SHOW_xxx/tables/"
+    code: "SHOW_xxx/code/"
+    actionbrief: "SHOW_xxx/actionbrief.yaml"
+    metadata: "SHOW_xxx/metadata/"
+
+notes:
+  - The export folder should contain only final artifacts.
+  - Intermediate analysis outputs must remain inside the analysis repo.
+  - Jiazi will never modify files inside the export folder.

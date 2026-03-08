@@ -24,6 +24,9 @@ myproj/
 ├── reports/            # Metrics and plots (DVC-tracked)
 ├── scripts/            # Shell utilities
 ├── actionplan/         # Workflow diagrams, named by version (e.g. v0.1.0.md)
+├── LAWS/               # Schema definitions (law_*.yaml) for artifacts and exports
+├── export/             # Final artifacts for Jiazi ingestion (figures, tables, code, metadata)
+├── etc/                # Miscellaneous config and auxiliary files
 ├── params.yaml         # Centralised experiment parameters
 ├── dvc.yaml            # Pipeline definition
 ├── experiment_log.md   # Log of completed experiments
@@ -44,6 +47,8 @@ myproj/
 | Parameters | `params.yaml` |
 | Packages | `pip install / uninstall` (auto-updates `requirements.txt`) |
 | Experiments | `git checkout -b exp/<id>-<topic>` + DVC |
+| Final artifacts (figures, tables, code, metadata) | `export/` |
+| Artifact & export schemas | `LAWS/` |
 
 ---
 
@@ -183,3 +188,48 @@ Update the version whenever an `actionplan/` file is modified.
 
 - Store secrets in `.env` only — never commit them.
 - Restrict DVC remote access to the project group (`chmod g+rwX`).
+
+---
+
+## 12) Export & Jiazi Integration
+
+The `export/` directory is the **sole interface** between this analysis repo and Jiazi (manuscript generation). All final artifacts must be placed here before handing off.
+
+### Required structure
+
+```
+export/
+├── figures/            # Final figures: figXX_description.png | .jpg
+├── tables/             # Final tables:  TableX_description.xlsx
+├── code/               # Minimal reproducible code
+│   └── run_analysis.py # Must regenerate all exported figures and tables
+├── configs/            # (optional) params.yaml, experiment_config.yaml
+├── metadata/           # variable_dictionary.yaml, dataset_dictionary.yaml
+└── actionbrief.yaml    # Core interface: datasets, variables, figures, tables, workflow
+```
+
+### Naming conventions
+
+| Artifact | Pattern | Example |
+|----------|---------|---------|
+| Figure | `figXX_description.ext` | `fig01_global_distribution.png` |
+| Table | `TableX_description.xlsx` | `Table1_DataSummary.xlsx` |
+
+### actionbrief.yaml
+
+Validated against `LAWS/law_actionbrief.yaml`. Required fields:
+
+- `doc_type: actionbrief`
+- `version`
+- `datasetDictionary` — keyed dataset descriptors
+- `variableDictionary` — keyed variable descriptors
+- `tableDictionary` / `figureDictionary` — keyed artifact descriptors
+- `analysisStructureBrief.levels` — ordered analytical levels (inputs → method → outputs → interpretation)
+
+### Rules
+
+- `export/` contains **only final artifacts** — no intermediate outputs.
+- Every figure/table referenced in `actionbrief.yaml` must exist in `export/figures/` or `export/tables/`.
+- `run_analysis.py` must reproduce all exported artifacts without notebook execution.
+- Jiazi will never modify files inside `export/`.
+- Schema definitions for validation live in `LAWS/` — do not edit them unless intentionally updating the law version.

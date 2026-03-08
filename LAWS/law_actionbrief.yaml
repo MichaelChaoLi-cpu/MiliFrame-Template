@@ -1,0 +1,293 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$title: "Jiazi Law: actionbrief"
+
+description: |
+  Schema for actionbrief.yaml (machine-generated brief of produced artifacts).
+
+type: object
+additionalProperties: true
+required:
+  - doc_type
+  - version
+
+properties:
+  doc_type:
+    type: string
+    const: actionbrief
+    description: "Document type identifier."
+
+  version:
+    type: string
+    description: "Schema/instance version, e.g., '0.1.0'."
+
+  datasetDictionary:
+    type: object
+    description: "Dictionary of datasets used in the analysis. Keys are dataset IDs; values are dataset descriptors."
+    additionalProperties:
+      $ref: "#/$defs/dataset_item"
+
+  variableDictionary:
+    type: object
+    description: "Dictionary of variables used in the analysis. Keys are variable IDs; values are variable descriptors."
+    additionalProperties:
+      $ref: "#/$defs/variable_item"
+
+  tableDictionary:
+    type: object
+    description: "Dictionary of tables produced/used in the show. Keys are table IDs; values are table descriptors."
+    additionalProperties:
+      $ref: "#/$defs/table_item"
+
+  figureDictionary:
+    type: object
+    description: "Dictionary of figures produced/used in the show. Keys are figure IDs; values are figure descriptors."
+    additionalProperties:
+      $ref: "#/$defs/figure_item"
+
+  analysisStructureBrief:
+    type: object
+    description: "Structured description of the analytical workflow, including hierarchical levels, inputs, models, outputs, and interpretation."
+    additionalProperties: false
+    required:
+      - levels
+    properties:
+      overview:
+        type: string
+        description: "High-level narrative summary of the entire analytical workflow."
+      levels:
+        type: array
+        minItems: 1
+        description: "Ordered analytical levels from data input to final results."
+        items:
+          $ref: "#/$defs/analysis_level"
+
+$defs:
+  dataset_item:
+    type: object
+    additionalProperties: false
+    required:
+      - datasetSourceName
+      - datasetDescription
+      - datasetAttribute
+      - datasetProvider
+      - datasetGenerationInfo
+      - datasetPeriod
+      - datasetScale
+      - datasetSpatialResolution
+      - datasetTemporalResolution
+      - datasetPreprocessingInfo
+    properties:
+      datasetSourceName:
+        type: string
+        minLength: 1
+        description: "Canonical dataset name used in the project (human-readable)."
+
+      datasetDescription:
+        type: string
+        minLength: 1
+        description: "Short description of what the dataset contains and why it is used."
+
+      datasetAttribute:
+        type: string
+        description: "Dataset modality / format."
+        enum:
+          - table
+          - shapefile
+          - raster
+          - netcdf
+          - geojson
+          - other
+
+      datasetProvider:
+        type: string
+        minLength: 1
+        description: "Who provides the dataset (organization, lab, vendor, etc.)."
+
+      datasetGenerationInfo:
+        type: string
+        minLength: 1
+        description: "How the dataset was obtained or generated (collection method, download/source, instrumentation, etc.)."
+
+      datasetPeriod:
+        type: string
+        minLength: 1
+        description: "Time coverage of the dataset (e.g., '2000-01 to 2025-12')."
+
+      datasetScale:
+        type: string
+        minLength: 1
+        description: "Spatial coverage/extent (global, country-level, region, etc.)."
+
+      datasetSpatialResolution:
+        type: string
+        minLength: 1
+        description: "Spatial resolution (e.g., '500m', '0.25°', 'county')."
+
+      datasetTemporalResolution:
+        type: string
+        minLength: 1
+        description: "Temporal resolution (e.g., 'daily', 'monthly', 'annual')."
+
+      datasetPreprocessingInfo:
+        type: string
+        minLength: 1
+        description: "Preprocessing steps and other relevant notes (cleaning, filtering, regridding, harmonization, etc)."
+
+  variable_item:
+    type: object
+    additionalProperties: false
+    required:
+      - variableNameInDataset
+      - variableNameInArticle
+      - variableAttribute
+      - variableUnit
+      - variableDescription
+      - variableSource
+      - observationNumber
+    properties:
+      variableNameInDataset:
+        type: string
+        minLength: 1
+        description: "Variable name as it appears in the dataset (often abbreviated / program-friendly)."
+      variableNameInArticle:
+        type: string
+        minLength: 1
+        description: "Human-readable variable name used in the manuscript."
+      variableAttribute:
+        type: string
+        description: "Variable type / measurement scale."
+        enum:
+          - continuous
+          - categorical
+          - boolean
+          - ordinal
+          - count
+          - other
+      variableUnit:
+        type: string
+        minLength: 1
+        description: "Real-world unit (e.g., '°C', '%', 'index points', 'yes/no')."
+      variableDescription:
+        type: string
+        minLength: 1
+        description: "Short description of what the variable measures."
+      variableSource:
+        type: string
+        minLength: 1
+        description: "Dataset ID (key in datasetDictionary) from which this variable is sourced."
+      observationNumber:
+        type: integer
+        minimum: 0
+        description: "Number of valid observations for this variable."
+
+  table_item:
+    type: object
+    additionalProperties: false
+    required:
+      - tableId
+      - tablePath
+      - tableCaption
+      - tableAim
+      - tableExplanation
+      - tableSuitableSection
+    properties:
+      tableId:
+        type: string
+        minLength: 1
+        description: "Table identifier/number (e.g., 'Table 1', 'Table S2')."
+      tablePath:
+        type: string
+        minLength: 1
+        description: "Relative path to the table file within the show directory (e.g., 'tables/Table1_DataSummary.xlsx')."
+      tableCaption:
+        type: string
+        minLength: 1
+        description: "Table caption used in the manuscript."
+      tableAim:
+        type: string
+        minLength: 1
+        description: "What this table is intended to demonstrate or summarize."
+      tableExplanation:
+        type: string
+        minLength: 1
+        description: "Explanation of row/column labels, key metrics, and how to read the table."
+      tableSuitableSection:
+        type: string
+        minLength: 1
+        description: "Which manuscript section/subsection this table best supports (e.g., 'Data and Measurement', 'Results')."
+
+  figure_item:
+    type: object
+    additionalProperties: false
+    required:
+      - figureId
+      - figurePath
+      - figureCaption
+      - figureAim
+      - figureExplanation
+      - figureSuitableSection
+    properties:
+      figureId:
+        type: string
+        minLength: 1
+        description: "Figure identifier/number (e.g., 'Figure 1', 'Figure S3')."
+      figurePath:
+        type: string
+        minLength: 1
+        description: "Relative path to the figure file within the show directory (e.g., 'figures/fig05_global_variation.jpg')."
+      figureCaption:
+        type: string
+        minLength: 1
+        description: "Figure caption used in the manuscript."
+      figureAim:
+        type: string
+        minLength: 1
+        description: "What this figure is intended to demonstrate or summarize."
+      figureExplanation:
+        type: string
+        minLength: 1
+        description: "Explanation of panels, axes/legends, key encodings, and how to read the figure."
+      figureSuitableSection:
+        type: string
+        minLength: 1
+        description: "Which manuscript section/subsection this figure best supports (e.g., 'Data and Measurement', 'Results')."
+
+  analysis_level:
+    type: object
+    additionalProperties: false
+    required:
+      - levelName
+      - levelAim
+      - inputs
+      - modelOrMethod
+      - outputs
+      - interpretation
+    properties:
+      levelName:
+        type: string
+        minLength: 1
+        description: "Name of the analytical level (e.g., 'Climate Exposure Modeling')."
+      levelAim:
+        type: string
+        minLength: 1
+        description: "Purpose of this analytical level within the overall workflow."
+      inputs:
+        type: array
+        minItems: 1
+        description: "Datasets, variables, or artifacts used as inputs at this level."
+        items:
+          type: string
+      modelOrMethod:
+        type: string
+        minLength: 1
+        description: "Model(s) or analytical method(s) applied at this level (e.g., XGBoost, mediation analysis)."
+      outputs:
+        type: array
+        minItems: 1
+        description: "Artifacts or variables produced at this level (tables, figures, derived variables)."
+        items:
+          type: string
+      interpretation:
+        type: string
+        minLength: 1
+        description: "How the outputs from this level should be interpreted and carried forward."

@@ -1,6 +1,6 @@
 [project]
 name = "mproj_template"
-version = "1.0.1"
+version = "1.1.0"
 description = "My project description"
 dependencies = []
 

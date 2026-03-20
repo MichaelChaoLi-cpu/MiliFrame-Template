@@ -9,7 +9,7 @@ law_type: export_folder
 purpose: |
   Define the required structure of the `exports/` directory produced by an
   analysis repository so that Jiazi can automatically ingest analysis artifacts
-  (figures, tables, code, metadata, and actionbrief) and generate manuscripts.
+  (figures, tables, code, notebooks, sop, metadata, and actionbrief) and generate manuscripts.
 
 principles:
   - The export folder is the **only interface** between an analysis repository and Jiazi.
@@ -48,6 +48,36 @@ required_structure:
         - run_analysis.py must reproduce all exported figures and tables.
         - code should not depend on notebook execution.
 
+    nbs:
+      description: |
+        Full analysis source scripts in Jupytext percent format (.py).
+        Each file corresponds to one analytical step and can be converted
+        to a Jupyter notebook via jupytext.
+      required_files:
+        - "01_data_cleaning.py"
+        - "02_data_inspection.py"
+        - "03_analysis.py"
+        - "04_country_analysis.py"
+        - "90_export.py"
+      optional_files:
+        - "variable_dict.py"
+        - "gfs_income.py"
+      naming_rule: "NN_description.py  (NN = two-digit step number)"
+      rules:
+        - Files must be runnable as plain Python scripts from the project root.
+        - Export scripts (90+) must regenerate the full exports/ directory when run.
+
+    sop:
+      description: |
+        Human-authored analysis specification document (Standard Operating Procedure).
+        Describes research objectives, identification strategy, variable definitions,
+        and the analytical workflow that the code implements.
+      required_files:
+        - AnaSOP.md
+      rules:
+        - AnaSOP.md must be kept in sync with the actual analysis code.
+        - Jiazi uses this document as the authoritative description of analytical intent.
+
     configs:
       description: Configuration files used for the analysis.
       optional: true
@@ -73,6 +103,8 @@ integration_rules:
   - Variables described in `variable_dictionary.yaml` must appear in
     `actionbrief.variableDictionary`.
   - Dataset entries must appear in `dataset_dictionary.yaml`.
+  - All nbs/ scripts listed in `required_files` must be present in `exports/nbs/`.
+  - `exports/sop/AnaSOP.md` must be present.
 
 naming_conventions:
   figures_prefix: "fig"
@@ -85,6 +117,8 @@ validation:
     - verify_figures_match_dictionary
     - verify_tables_match_dictionary
     - verify_metadata_consistency
+    - verify_nbs_scripts_present
+    - verify_sop_present
 
 output_target:
   description: |
@@ -93,14 +127,18 @@ output_target:
       - figures
       - tables
       - code
+      - nbs
+      - sop
       - actionbrief
       - metadata
 
 example_mapping:
   exports:
-    figures: "SHOW_xxx/figures/"
-    tables: "SHOW_xxx/tables/"
-    code: "SHOW_xxx/code/"
+    figures:  "SHOW_xxx/figures/"
+    tables:   "SHOW_xxx/tables/"
+    code:     "SHOW_xxx/code/"
+    nbs:      "SHOW_xxx/nbs/"
+    sop:      "SHOW_xxx/AnaSOP.md"
     actionbrief: "SHOW_xxx/actionbrief.yaml"
     metadata: "SHOW_xxx/metadata/"
 

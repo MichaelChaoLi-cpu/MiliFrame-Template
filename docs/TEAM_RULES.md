@@ -17,21 +17,13 @@ Defines how we manage code, data, and experiments for reproducible, collaborativ
 
 ```
 myproj/
-├── notebooks/          # Source .ipynb (outputs stripped by pre-commit)
-├── test_notebooks/     # Test notebooks (DVC-controlled, outputs kept)
-├── nbs/                # Paired .py files (percent format, for Git diff)
-├── data/               # Datasets (DVC-tracked, Git-ignored)
-├── reports/            # Metrics and plots (DVC-tracked)
-├── scripts/            # Shell utilities
-├── actionplan/         # Workflow diagrams, named by version (e.g. v0.1.0.md)
-├── LAWS/               # Schema definitions (law_*.yaml) for artifacts and exports
+├── src/                # Python scripts; experimental *.ipynb allowed but not tracked
+├── data/               # Datasets and reports (DVC-tracked, Git-ignored)
+├── etc/                # Shell utilities and auxiliary scripts
+├── docs/               # Project documentation (including LAWS/ schemas)
 ├── export/             # Final artifacts for Jiazi ingestion (figures, tables, code, metadata)
-├── etc/                # Miscellaneous config and auxiliary files
-├── params.yaml         # Centralised experiment parameters
-├── dvc.yaml            # Pipeline definition
-├── experiment_log.md   # Log of completed experiments
 ├── pyproject.toml      # Project metadata and dependencies
-├── .jupytext.toml      # ipynb ↔ py pairing config
+├── requirements.txt    # Python dependencies
 ├── .env                # Local environment variables (not committed)
 └── .gitignore
 ```
@@ -44,11 +36,11 @@ myproj/
 |------|-------|
 | Code | Git |
 | Data & large outputs | DVC |
-| Parameters | `params.yaml` |
+| Parameters | inline in scripts or `src/config.py` |
 | Packages | `pip install / uninstall` (auto-updates `requirements.txt`) |
 | Experiments | `git checkout -b exp/<id>-<topic>` + DVC |
 | Final artifacts (figures, tables, code, metadata) | `export/` |
-| Artifact & export schemas | `LAWS/` |
+| Artifact & export schemas | `docs/LAWS/` |
 
 ---
 
@@ -107,9 +99,9 @@ dvc push
 
 ---
 
-## 6) Notebook Rules
+## 6) Script / Notebook Rules
 
-Every notebook must start with:
+Every script or notebook must start with:
 
 ```python
 import os
@@ -180,7 +172,7 @@ pip uninstall <package>     # same
 | Minor | Adds new components without breaking existing ones |
 | Patch | Incremental improvement within the current segment |
 
-Update the version whenever an `actionplan/` file is modified.
+Update the version whenever a workflow or structural change is merged to `dev`.
 
 ---
 
@@ -203,7 +195,7 @@ export/
 ├── tables/             # Final tables:  TableX_description.xlsx
 ├── code/               # Minimal reproducible code
 │   └── run_analysis.py # Must regenerate all exported figures and tables
-├── configs/            # (optional) params.yaml, experiment_config.yaml
+├── configs/            # (optional) experiment_config.yaml
 ├── metadata/           # variable_dictionary.yaml, dataset_dictionary.yaml
 └── actionbrief.yaml    # Core interface: datasets, variables, figures, tables, workflow
 ```
@@ -217,7 +209,7 @@ export/
 
 ### actionbrief.yaml
 
-Validated against `LAWS/law_actionbrief.yaml`. Required fields:
+Validated against `docs/LAWS/law_actionbrief.yaml`. Required fields:
 
 - `doc_type: actionbrief`
 - `version`
@@ -232,4 +224,4 @@ Validated against `LAWS/law_actionbrief.yaml`. Required fields:
 - Every figure/table referenced in `actionbrief.yaml` must exist in `export/figures/` or `export/tables/`.
 - `run_analysis.py` must reproduce all exported artifacts without notebook execution.
 - Jiazi will never modify files inside `export/`.
-- Schema definitions for validation live in `LAWS/` — do not edit them unless intentionally updating the law version.
+- Schema definitions for validation live in `docs/LAWS/` — do not edit them unless intentionally updating the law version.

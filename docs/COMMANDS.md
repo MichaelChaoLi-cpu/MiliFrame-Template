@@ -30,7 +30,7 @@ git push -u origin main
 
 ### 1.3 Set up environment variables (.env)
 
-The `.env` file is loaded by every notebook and is **never committed to git**.
+The `.env` file is loaded by every script and is **never committed to git**.
 
 ```bash
 echo -n > .env
@@ -67,7 +67,7 @@ conda activate $myproj
 
 ```bash
 pip install -r requirements.txt
-pip install jupytext nbconvert nbformat pre-commit dvc
+pip install pre-commit dvc
 pre-commit install
 ```
 
@@ -77,8 +77,8 @@ This makes every `pip install / uninstall / upgrade` in your terminal
 automatically update `requirements.txt`.
 
 ```bash
-chmod +x ./scripts/setup_conda_hooks.sh
-./scripts/setup_conda_hooks.sh
+chmod +x ./etc/setup_conda_hooks.sh
+./etc/setup_conda_hooks.sh
 conda activate $myproj          # re-activate to apply the hook
 type pip                        # should print: pip is a shell function
 ```
@@ -120,7 +120,7 @@ pip uninstall <package>         # same
 
 To manually sync if the hook was not active:
 ```bash
-./scripts/update_env.sh
+pip freeze > requirements.txt
 ```
 
 ### 2.3 Run an experiment
@@ -135,10 +135,10 @@ git checkout -b exp/<id>-<short-description>   # e.g. exp/001-baseline-model
 
 **Work and commit:**
 ```bash
-# Edit notebooks, scripts, params.yaml ...
+# Edit scripts in src/ ...
 
 dvc add data/processed/my_output.csv           # track large outputs with DVC
-git add data/processed/my_output.csv.dvc params.yaml notebooks/
+git add data/processed/my_output.csv.dvc src/
 git commit -m "exp: 001 - baseline model"
 dvc push
 ```
@@ -165,7 +165,7 @@ git commit -m "data: track my_dataset"
 
 dvc push                        # upload to remote
 dvc pull                        # download from remote
-dvc repro                       # re-run pipeline (dvc.yaml)
+dvc repro                       # re-run pipeline if dvc.yaml is configured
 ```
 
 ### 2.5 Git commit conventions

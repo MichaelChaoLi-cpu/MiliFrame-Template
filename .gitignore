@@ -22,30 +22,16 @@ build/
 # ========================
 .ipynb_checkpoints/
 
+# Experimental notebooks in src/ — not tracked
+src/**/*.ipynb
+
 # ========================
-# Data & artifacts (managed by DVC, not Git)
+# Data (managed by DVC, not Git)
+# ========================
 data/**
 !data/**/*.dvc
 !data/**/.gitignore
-artifacts/**
-!artifacts/*.dvc
-!artifacts/**/*.dvc
-
-!artifacts/
-!artifacts/runs_*/
-!artifacts/runs_*/nbs/
-!artifacts/runs_*/nbs/**
-!artifacts/runs_*/nbs/**/*.py
-
-test_notebooks/**
-!test_notebooks/*.dvc
-!test_notebooks/**/*.dvc
-reports/*
-
-# Keep placeholder files
 !data/.gitkeep
-!artifacts/.gitkeep
-!reports/.gitkeep
 
 # ========================
 # DVC & MLflow

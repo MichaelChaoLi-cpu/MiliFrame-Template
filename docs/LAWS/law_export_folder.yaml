@@ -67,13 +67,13 @@ required_structure:
         - Files must be runnable as plain Python scripts from the project root.
         - Export scripts (90+) must regenerate the full exports/ directory when run.
 
-    sop:
+    AnaSOP.md:
       description: |
         Human-authored analysis specification document (Standard Operating Procedure).
         Describes research objectives, identification strategy, variable definitions,
         and the analytical workflow that the code implements.
-      required_files:
-        - AnaSOP.md
+        Placed directly at the exports/ root (not inside a subdirectory).
+      requirement: mandatory
       rules:
         - AnaSOP.md must be kept in sync with the actual analysis code.
         - Jiazi uses this document as the authoritative description of analytical intent.
@@ -104,7 +104,7 @@ integration_rules:
     `actionbrief.variableDictionary`.
   - Dataset entries must appear in `dataset_dictionary.yaml`.
   - All nbs/ scripts listed in `required_files` must be present in `exports/nbs/`.
-  - `exports/sop/AnaSOP.md` must be present.
+  - `exports/AnaSOP.md` must be present at the exports/ root.
 
 naming_conventions:
   figures_prefix: "fig"
@@ -128,7 +128,7 @@ output_target:
       - tables
       - code
       - nbs
-      - sop
+      - AnaSOP.md
       - actionbrief
       - metadata
 
@@ -137,8 +137,8 @@ example_mapping:
     figures:  "SHOW_xxx/figures/"
     tables:   "SHOW_xxx/tables/"
     code:     "SHOW_xxx/code/"
-    nbs:      "SHOW_xxx/nbs/"
-    sop:      "SHOW_xxx/AnaSOP.md"
+    nbs:         "SHOW_xxx/nbs/"
+    AnaSOP.md:   "SHOW_xxx/AnaSOP.md"
     actionbrief: "SHOW_xxx/actionbrief.yaml"
     metadata: "SHOW_xxx/metadata/"
 

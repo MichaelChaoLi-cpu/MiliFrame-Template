@@ -1,0 +1,368 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$title: "Jiazi Law: AnaSOP"
+
+version: 0.2.0
+law_type: AnaSOP
+
+purpose: |
+  Define the required structure and content of AnaSOP.md — the Analysis Standard
+  Operating Procedure. AnaSOP.md is the authoritative human-authored document
+  describing a project's research design, data, analytical workflow, and
+  result presentation strategy.
+
+  The document follows a fixed section sequence (§1–§11). Three research types
+  are supported; they share §1, §3, §4, §7–§11, and differ in §2, §5, and §6.
+
+research_types:
+  - id: theoretical
+    label: "Theoretical & Mechanism"
+    focus: "Formal hypotheses, causal mechanisms, derived propositions, and empirical verification."
+  - id: applied
+    label: "Applied & Phenomenological"
+    focus: "Demonstrating the existence, magnitude, or structure of an empirical phenomenon or association."
+  - id: methodological
+    label: "Methodological & Algorithmic"
+    focus: "Algorithm design, experimental evaluation, and performance benchmarking."
+
+# ──────────────────────────────────────────────────────────────────────────────
+# PREAMBLE  (identical in all documents)
+# ──────────────────────────────────────────────────────────────────────────────
+preamble:
+  required: true
+  content: |
+    # AnaSOP
+    Analysis Standard Operating Procedure
+
+    This document records the **human-designed analysis procedure** for the project.
+    It explains the **research objective, conceptual framework, estimands, and analytical workflow**.
+
+    AnaSOP serves two purposes:
+
+    1. Guide researchers on how to reproduce and extend the analysis.
+    2. Provide contextual reasoning for automated research systems such as Jiazi.
+
+    This document may evolve as the research progresses.
+
+# ──────────────────────────────────────────────────────────────────────────────
+# §1  RESEARCH OBJECTIVE  (all types — identical structure)
+# ──────────────────────────────────────────────────────────────────────────────
+section_1_research_objective:
+  title: "1. Research Objective"
+  required: true
+  applies_to: [theoretical, applied, methodological]
+  required_content:
+    - Central research question (one or a numbered list of sub-questions)
+    - Scope of analysis (topics, units, period)
+    - Study design declaration
+  study_design_vocabulary:
+    theoretical:    "theory-driven study / mechanism study"
+    applied:        "observational panel study / observational associational study"
+    methodological: "methodological study / algorithm study / experimental study"
+  rules:
+    - The study design declaration must be explicit and match research_type.
+    - Applied studies must state that results are associations, not causal effects.
+
+# ──────────────────────────────────────────────────────────────────────────────
+# §2  BACKGROUND  (type-specific content)
+# ──────────────────────────────────────────────────────────────────────────────
+section_2_background:
+  title: "2. Theoretical Background  /  Conceptual Framework  /  Problem Formulation"
+  required: true
+  applies_to: [theoretical, applied, methodological]
+
+  theoretical:
+    heading: "2. Theoretical Background"
+    required_subsections:
+      - Prior literature summary and identified gap
+      - Formal hypotheses (H1, H2, …) — each as a falsifiable statement with predicted direction
+      - Proposed causal mechanisms — step-by-step pathway linking cause to effect with supporting theory
+      - Derived propositions or corollaries (optional but encouraged)
+    rules:
+      - Hypotheses must be numbered and falsifiable.
+      - Each hypothesis must be linked to at least one mechanism subsection.
+
+  applied:
+    heading: "2. Theoretical Background  /  Conceptual Framework"
+    required_subsections:
+      - Literature context motivating the phenomenon of interest
+      - Conceptual channels or theoretical lenses used to interpret the phenomenon
+      - Institutional context if relevant (regulatory environment, country-specific factors)
+    rules:
+      - Theoretical background is used to frame interpretation, not to generate testable hypotheses.
+      - No formal hypotheses required; conceptual channels are sufficient.
+
+  methodological:
+    heading: "2. Problem Formulation"
+    required_subsections:
+      - Problem statement (formal input/output/objective specification)
+      - Limitations of existing approaches that motivate the proposed method
+      - Key assumptions and conditions under which the method is valid
+    rules:
+      - Problem must be stated formally (inputs, outputs, objective function or criterion).
+      - Prior-art limitations must be clearly connected to the contribution.
+
+# ──────────────────────────────────────────────────────────────────────────────
+# §3  DATA OVERVIEW  (all types — identical structure)
+# ──────────────────────────────────────────────────────────────────────────────
+section_3_data:
+  title: "3. Data Overview"
+  required: true
+  applies_to: [theoretical, applied, methodological]
+  required_content:
+    - Data sources table (file / dataset name, content description, dimensions)
+    - Unit of observation and time coverage
+    - Sample size and panel structure (balanced / unbalanced, if panel)
+    - Scope of focal variables / topics included in analysis
+  methodological_variant: |
+    For methodological studies, replace the data sources table with a
+    description of datasets or simulation settings used for evaluation.
+    Include dataset name, source, size, and relevant properties.
+
+# ──────────────────────────────────────────────────────────────────────────────
+# §4  VARIABLE CONSTRUCTION  (all types — structure adapts)
+# ──────────────────────────────────────────────────────────────────────────────
+section_4_variables:
+  title: "4. Variable Construction  /  Key Variables"
+  required: true
+  applies_to: [theoretical, applied, methodological]
+  required_content:
+    - Outcome variable(s) with formal definition and coding
+    - Main explanatory variable(s) with formal definition
+    - Control variables or fixed effects used
+  type_notes:
+    theoretical: |
+      Include variables corresponding to each hypothesis.
+      Clearly identify which variables operationalize each mechanism.
+    applied: |
+      Clearly distinguish outcome, main explanatory, mechanism/mediator,
+      and control variables. Document lag structure if used.
+    methodological: |
+      Replace outcome/explanatory structure with:
+      - Inputs and outputs of the algorithm
+      - Performance metrics and their formal definitions
+      - Baseline/comparison methods described as variables
+
+# ──────────────────────────────────────────────────────────────────────────────
+# §5  IDENTIFICATION STRATEGY  (type-specific content)
+# ──────────────────────────────────────────────────────────────────────────────
+section_5_identification:
+  title: "5. Identification Strategy"
+  required: true
+  applies_to: [theoretical, applied, methodological]
+
+  theoretical:
+    required_subsections:
+      - Design principle — how the empirical design maps onto hypotheses
+      - Model specification — formal estimating equations for each hypothesis test
+      - Primary estimands — what is being estimated for each hypothesis
+      - Interpretation limits — what the design can and cannot establish
+    rules:
+      - Each hypothesis must have a corresponding estimand and test.
+      - Propositions or corollaries that follow from hypothesis tests should be stated here.
+
+  applied:
+    required_subsections:
+      - Design principle — one-topic / one-model or equivalent isolation logic
+      - Model specification — formal estimating equations (TWFE, OLS, etc.)
+      - Interpretation limits — mandatory statement that results are NOT causal
+      - Primary estimands — what β coefficients represent
+    rules:
+      - The interpretation limits subsection is mandatory for applied studies.
+      - Must explicitly state why causal interpretation is not claimed.
+
+  methodological:
+    required_subsections:
+      - Algorithm description — pseudocode or numbered procedural steps
+      - Complexity analysis — time and space complexity (if applicable)
+      - Experimental design — datasets, baselines, evaluation metrics, implementation details
+    rules:
+      - Algorithm must be described precisely enough to re-implement.
+      - Baselines must be named; evaluation metrics must be formally defined.
+
+# ──────────────────────────────────────────────────────────────────────────────
+# §6  MAIN ESTIMATION FRAMEWORK / RESULTS FRAMEWORK  (type-specific content)
+# ──────────────────────────────────────────────────────────────────────────────
+section_6_results_framework:
+  title: "6. Main Estimation Framework  /  Results Framework"
+  required: true
+  applies_to: [theoretical, applied, methodological]
+
+  theoretical:
+    required_subsections:
+      - Primary hypothesis tests — which models test which hypotheses, expected signs
+      - Mechanism evidence — how mechanism pathways are verified empirically
+      - Verdict structure — how to map estimation results back to H1, H2, … (supported / rejected)
+      - Robustness checks — perturbations that confirm hypothesis verdicts are stable
+    rules:
+      - Each hypothesis in §2 must have a corresponding test described here.
+      - Verdict structure must be explicit — do not leave interpretation implicit.
+
+  applied:
+    required_subsections:
+      - Primary analysis (main model grid) — number of models, specification matrix
+      - Heterogeneity analysis — subgroup / sector / country breakdowns
+      - Robustness checks — list of checks with brief rationale
+    model_grid_format: |
+      Document the full model grid as: N_topics × N_specifications = N models.
+      For each specification, state the estimand and the key empirical question it answers.
+    robustness_format: |
+      List each robustness check as a numbered entry with:
+      - Name of the check
+      - What it perturbs (outcome, sample, specification)
+      - Why it matters
+
+  methodological:
+    required_subsections:
+      - Performance results overview — narrative summary of main findings
+      - Comparison against baselines — primary performance table reference
+      - Ablation or sensitivity analysis — what components / hyperparameters are varied
+      - Failure modes — known conditions where the method underperforms
+    rules:
+      - All baselines listed in §5 must appear in results.
+      - Failure modes must be discussed honestly; do not omit negative results.
+
+# ──────────────────────────────────────────────────────────────────────────────
+# §7  ANALYTICAL WORKFLOW  (all types — identical structure)
+# ──────────────────────────────────────────────────────────────────────────────
+section_7_workflow:
+  title: "7. Analytical Workflow"
+  required: true
+  applies_to: [theoretical, applied, methodological]
+  format: |
+    Ordered list of steps from raw data / inputs to final exports.
+    Each step uses the format:
+      ## Step N — [Step Name]
+      - Bullet list of sub-tasks
+    Steps must correspond to scripts in exports/nbs/.
+  required_steps:
+    - Data preparation / loading
+    - Descriptive statistics / exploratory analysis
+    - Primary analysis (estimation / algorithm execution)
+    - Heterogeneity / ablation analysis (if applicable)
+    - Robustness checks
+    - Interpretation / synthesis
+
+# ──────────────────────────────────────────────────────────────────────────────
+# §8  STANDARD TABLE AND FIGURE STRUCTURE  (all types)
+# ──────────────────────────────────────────────────────────────────────────────
+section_8_artifact_structure:
+  title: "8. Standard Table and Figure Structure"
+  required: true
+  applies_to: [theoretical, applied, methodological]
+  guidance: |
+    Define the layout and column structure of each planned table.
+    Figures are described by their type (forest plot, line chart, etc.)
+    and what they show.
+    This section acts as a pre-specification of exports/actionbrief.yaml.
+  rules:
+    - All tables in §9 Expected Outputs must have a layout defined here.
+    - Table column names must be consistent with variable names defined in §4.
+
+# ──────────────────────────────────────────────────────────────────────────────
+# §9  EXPECTED OUTPUTS  (all types — identical structure)
+# ──────────────────────────────────────────────────────────────────────────────
+section_9_outputs:
+  title: "9. Expected Outputs"
+  required: true
+  applies_to: [theoretical, applied, methodological]
+  format: |
+    Two numbered lists: Figures and Tables.
+    Each entry: [figXX / TableX] — description of content.
+    Naming must follow law_export_folder.yaml conventions:
+      figures: figXX_description.png
+      tables:  TableX_Description.xlsx
+  rules:
+    - All figures and tables listed here must appear in exports/actionbrief.yaml.
+    - All figures listed here must exist in exports/figures/.
+    - All tables listed here must exist in exports/tables/.
+
+# ──────────────────────────────────────────────────────────────────────────────
+# §10  RELATIONSHIP WITH JIAZI  (all types — standard boilerplate)
+# ──────────────────────────────────────────────────────────────────────────────
+section_10_jiazi:
+  title: "10. Relationship with Jiazi"
+  required: true
+  applies_to: [theoretical, applied, methodological]
+  standard_content: |
+    The analysis repository provides artifacts to Jiazi through the `exports/` interface.
+
+    Exported artifacts include:
+    - Figures (PNG/SVG)
+    - Regression / results tables (CSV/LaTeX)
+    - Reproducible scripts
+    - actionbrief.yaml
+
+    Jiazi uses these artifacts to generate manuscript sections and assemble the research paper.
+  rules:
+    - This section may be extended with project-specific notes on Jiazi usage.
+    - The standard content above must be present verbatim or paraphrased faithfully.
+
+# ──────────────────────────────────────────────────────────────────────────────
+# §11  HUMAN DEBUG NOTES  (all types — identical structure)
+# ──────────────────────────────────────────────────────────────────────────────
+section_11_debug_notes:
+  title: "11. Human Debug Notes"
+  required: true
+  applies_to: [theoretical, applied, methodological]
+  format: |
+    Chronological log of research decisions, scope changes, and evolving
+    analytical choices. Each entry must be dated (YYYY-MM-DD).
+    Example:
+      - **2026-04-12**: Initial AnaSOP written. Research question confirmed. ...
+  rules:
+    - At minimum, one entry must record when the AnaSOP was initialized.
+    - Entries must use absolute dates (YYYY-MM-DD), not relative references.
+    - Scope changes, variable redefinitions, and model redesigns must be documented here.
+
+# ──────────────────────────────────────────────────────────────────────────────
+# VALIDATION RULES
+# ──────────────────────────────────────────────────────────────────────────────
+validation:
+  required_sections:
+    all_types: [preamble, §1, §2, §3, §4, §5, §6, §7, §8, §9, §10, §11]
+  section_order: sections must appear in the order §1 through §11
+  checks:
+    - verify_preamble_present
+    - verify_section_sequence_complete
+    - verify_research_type_declared_in_section_1
+    - verify_section_2_matches_research_type
+    - verify_section_5_matches_research_type
+    - verify_section_6_matches_research_type
+    - verify_output_lists_consistent_with_actionbrief
+    - verify_debug_notes_dated
+
+# ──────────────────────────────────────────────────────────────────────────────
+# WRITING STYLE GUIDANCE
+# ──────────────────────────────────────────────────────────────────────────────
+writing_style:
+
+  general:
+    - Use numbered sections (# 1. Title).
+    - Use ## for subsections.
+    - Use markdown tables for data, variable, and model descriptions.
+    - Use fenced code blocks for formal equations, model specifications, and pseudocode.
+    - Keep each section self-contained — a reader should understand the section without reading ahead.
+
+  theoretical:
+    tone: "Deductive and precise. Lead with theory; every empirical step maps to a hypothesis."
+    section_2_emphasis: "Hypotheses must be stated before mechanisms, not after."
+    section_6_emphasis: "Verdict structure is the centrepiece — make accept/reject decisions explicit."
+    avoid:
+      - Vague claims about 'exploring' relationships without prior hypotheses.
+      - Treating unsupported exploratory findings as hypothesis confirmations.
+
+  applied:
+    tone: "Empirical and contextual. Let the data tell the story; interpret cautiously."
+    section_5_emphasis: "Interpretation limits section is non-negotiable — must state clearly what cannot be claimed."
+    section_6_emphasis: "Model grid clarity — specify exactly which model answers which empirical question."
+    avoid:
+      - Over-claiming causality without identification strategy.
+      - Omitting robustness checks for main findings.
+
+  methodological:
+    tone: "Technical and precise. Algorithm clarity first; experiments second."
+    section_2_emphasis: "Problem formulation must be formal enough to derive the algorithm from first principles."
+    section_6_emphasis: "Failure modes must be discussed — do not present only favourable results."
+    avoid:
+      - Vague descriptions of hyperparameter choices or training procedures.
+      - Missing or weak baselines in performance comparison.

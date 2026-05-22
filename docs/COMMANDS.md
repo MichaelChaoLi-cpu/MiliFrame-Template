@@ -36,7 +36,6 @@ The `.env` file is loaded by every script and is **never committed to git**.
 echo -n > .env
 echo "myproj=$myproj"          >> .env
 echo "PROJECT_ROOT=$(pwd)"     >> .env
-echo "PYTHON_VERSION=3.12"     >> .env   # change if you need a different version
 
 # Load into current shell to verify
 set -a && source .env && set +a
@@ -47,43 +46,18 @@ Expected `.env` content:
 ```
 myproj=YOUR_PROJECT_NAME
 PROJECT_ROOT=/absolute/path/to/your/project
-PYTHON_VERSION=3.12
 ```
 
-### 1.4 Create the conda environment (Python 3.12)
+### 1.4 Install Python dependencies
+
+uv reads `pyproject.toml` and `uv.lock` to install exact versions into `.venv`.
 
 ```bash
-# If variables are not set in your current shell, reload them first:
-set -a && source .env && set +a
-
-conda create -n $myproj python=${PYTHON_VERSION:-3.12} -y
-conda activate $myproj
-```
-
-> If the project ships a pre-built `environment.yml`, use
-> `conda env create -f environment.yml` instead.
-
-### 1.5 Install Python dependencies
-
-```bash
-pip install -r requirements.txt
-pip install pre-commit dvc
+uv sync
 pre-commit install
 ```
 
-### 1.6 Install the pip auto-freeze hook (once per conda env)
-
-This makes every `pip install / uninstall / upgrade` in your terminal
-automatically update `requirements.txt`.
-
-```bash
-chmod +x ./etc/setup_conda_hooks.sh
-./etc/setup_conda_hooks.sh
-conda activate $myproj          # re-activate to apply the hook
-type pip                        # should print: pip is a shell function
-```
-
-### 1.7 Initialize DVC and configure remote storage
+### 1.5 Initialize DVC and configure remote storage
 
 ```bash
 dvc init
@@ -106,7 +80,7 @@ dvc remote add -d local /path/to/your/data/store
 ### 2.1 Start a new session (joining an existing project)
 
 ```bash
-conda activate $myproj
+source .venv/bin/activate
 set -a && source .env && set +a
 dvc pull                        # fetch latest data/artifacts
 ```
@@ -114,13 +88,8 @@ dvc pull                        # fetch latest data/artifacts
 ### 2.2 Package management
 
 ```bash
-pip install <package>           # requirements.txt auto-updated by hook
-pip uninstall <package>         # same
-```
-
-To manually sync if the hook was not active:
-```bash
-pip freeze > requirements.txt
+uv add <package>                # updates pyproject.toml and uv.lock
+uv remove <package>             # same
 ```
 
 ### 2.3 Run an experiment

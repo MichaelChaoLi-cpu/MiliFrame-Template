@@ -14,7 +14,7 @@ myproj/
 ├── docs/          # Documentation (TEAM_RULES, COMMANDS, SOP, etc.)
 ├── export/        # Final artifacts for Jiazi (figures, tables, code, metadata)
 ├── pyproject.toml
-└── requirements.txt
+└── uv.lock
 ```
 
 ---
@@ -35,21 +35,12 @@ git push -u origin main
 # 3. Create .env
 echo "myproj=$myproj"       > .env
 echo "PROJECT_ROOT=$(pwd)" >> .env
-echo "PYTHON_VERSION=3.12" >> .env
 
-# 4. Create conda environment
-conda create -n $myproj python=3.12 -y && conda activate $myproj
-
-# 5. Install dependencies
-pip install -r requirements.txt
-pip install pre-commit dvc
+# 4. Install dependencies (uv reads pyproject.toml + uv.lock)
+uv sync
 pre-commit install
 
-# 6. Install pip auto-freeze hook
-chmod +x etc/setup_conda_hooks.sh && ./etc/setup_conda_hooks.sh
-conda activate $myproj        # re-activate to apply hook
-
-# 7. Initialize DVC
+# 5. Initialize DVC
 dvc init
 dvc remote add -d <name> <path>   # HPC: /home/<group>/share/dvc_remote
 ```
@@ -60,7 +51,7 @@ dvc remote add -d <name> <path>   # HPC: /home/<group>/share/dvc_remote
 
 ```bash
 # Start session
-conda activate $myproj
+source .venv/bin/activate
 set -a && source .env && set +a
 git pull && dvc pull
 

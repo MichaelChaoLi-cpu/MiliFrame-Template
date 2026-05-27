@@ -23,7 +23,7 @@ myproj/
 ├── docs/               # Project documentation (including LAWS/ schemas)
 ├── export/             # Final artifacts for Jiazi ingestion (figures, tables, code, metadata)
 ├── pyproject.toml      # Project metadata and dependencies
-├── requirements.txt    # Python dependencies
+├── uv.lock             # Locked dependency versions
 ├── .env                # Local environment variables (not committed)
 └── .gitignore
 ```
@@ -37,7 +37,7 @@ myproj/
 | Code | Git |
 | Data & large outputs | DVC |
 | Parameters | inline in scripts or `src/config.py` |
-| Packages | `pip install / uninstall` (auto-updates `requirements.txt`) |
+| Packages | `uv add / remove` (auto-updates `pyproject.toml` + `uv.lock`) |
 | Experiments | `git checkout -b exp/<id>-<topic>` + DVC |
 | Final artifacts (figures, tables, code, metadata) | `export/` |
 | Artifact & export schemas | `docs/LAWS/` |
@@ -148,15 +148,15 @@ To revisit: `git checkout exp/001-description && dvc pull`
 See `COMMANDS.md` for full setup instructions.
 
 ```bash
-pip install <package>       # requirements.txt auto-updated
-pip uninstall <package>     # same
+uv add <package>            # updates pyproject.toml + uv.lock
+uv remove <package>         # same
 ```
 
 ---
 
 ## 9) Collaboration Rhythm
 
-- **Start of session:** `git pull && dvc pull`
+- **Start of session:** `source .venv/bin/activate` → `git pull && dvc pull`
 - **End of session:** `git push && dvc push`
 - **Never** commit raw data, credentials, or `.env` to Git.
 

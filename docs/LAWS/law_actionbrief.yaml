@@ -202,7 +202,7 @@ $defs:
       tableCaption:
         type: string
         minLength: 1
-        description: "Table caption used in the manuscript."
+        description: "Table caption used in the manuscript. Must not exceed 12 words. Must be written in plain, readable language understandable to a non-specialist reader."
       tableAim:
         type: string
         minLength: 1
@@ -238,7 +238,7 @@ $defs:
       figureCaption:
         type: string
         minLength: 1
-        description: "Figure caption used in the manuscript."
+        description: "Figure caption used in the manuscript. Must not exceed 12 words. Must be written in plain, readable language understandable to a non-specialist reader."
       figureAim:
         type: string
         minLength: 1

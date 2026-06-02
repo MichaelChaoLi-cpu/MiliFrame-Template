@@ -10,8 +10,8 @@ purpose: |
   describing a project's research design, data, analytical workflow, and
   result presentation strategy.
 
-  The document follows a fixed section sequence (§1–§11). Three research types
-  are supported; they share §1, §3, §4, §7–§11, and differ in §2, §5, and §6.
+  The document follows a fixed section sequence (§1–§10). Three research types
+  are supported; they share §1, §3, §4, §7–§10, and differ in §2, §5, and §6.
 
 research_types:
   - id: theoretical
@@ -229,12 +229,12 @@ section_7_workflow:
   required: true
   applies_to: [theoretical, applied, methodological]
   format: |
-    Ordered list of steps from raw data / inputs to final exports.
+    Ordered list of steps from raw data / inputs to final outputs.
     Each step uses the format:
       ## Step N — [Step Name]
       - Bullet list of sub-tasks
-    Steps must correspond to scripts in exports/nbs/.
-  required_steps:
+    Steps may correspond to scripts in export/code/, but this is not required.
+  example_steps:
     - Data preparation / loading
     - Descriptive statistics / exploratory analysis
     - Primary analysis (estimation / algorithm execution)
@@ -245,42 +245,37 @@ section_7_workflow:
 # ──────────────────────────────────────────────────────────────────────────────
 # §8  STANDARD TABLE AND FIGURE STRUCTURE  (all types)
 # ──────────────────────────────────────────────────────────────────────────────
-section_8_artifact_structure:
-  title: "8. Standard Table and Figure Structure"
+section_8_expected_results:
+  title: "8. Expected Results"
   required: true
   applies_to: [theoretical, applied, methodological]
   guidance: |
-    Define the layout and column structure of each planned table.
-    Figures are described by their type (forest plot, line chart, etc.)
-    and what they show.
-    This section acts as a pre-specification of exports/actionbrief.yaml.
-  rules:
-    - All tables in §9 Expected Outputs must have a layout defined here.
-    - Table column names must be consistent with variable names defined in §4.
-
-# ──────────────────────────────────────────────────────────────────────────────
-# §9  EXPECTED OUTPUTS  (all types — identical structure)
-# ──────────────────────────────────────────────────────────────────────────────
-section_9_outputs:
-  title: "9. Expected Outputs"
-  required: true
-  applies_to: [theoretical, applied, methodological]
+    Describe the expected results as a numbered list of anticipated conclusions.
+    Each result is one sentence stating a possible finding or conclusion.
+    Under each result, list the figures and tables planned to support it,
+    with a brief description of the expected appearance or content of each artifact.
+    This section is a forward-looking plan; results and artifacts may change
+    as the research develops.
   format: |
-    Two numbered lists: Figures and Tables.
-    Each entry: [figXX / TableX] — description of content.
-    Naming must follow law_export_folder.yaml conventions:
-      figures: figXX_description.png
-      tables:  TableX_Description.xlsx
+    Result 1. [One sentence stating a possible conclusion.]
+      - fig_XXX: [Description of expected figure appearance and what it shows.]
+      - table_XXX: [Description of expected table structure and what it shows.]
+    Result 2. [One sentence stating a possible conclusion.]
+      - ...
+  naming_convention: |
+    Use name-based identifiers without sequential numbering, since figure and
+    table order will be determined when the paper is assembled:
+      figures: fig_XXX   (XXX = short name abbreviation, e.g. fig_main_coef)
+      tables:  table_XXX (XXX = short name abbreviation, e.g. table_sumstat)
   rules:
-    - All figures and tables listed here must appear in exports/actionbrief.yaml.
-    - All figures listed here must exist in exports/figures/.
-    - All tables listed here must exist in exports/tables/.
+    - Each result must be expressed as a single declarative sentence.
+    - Table column names should be consistent with variable names defined in §4.
 
 # ──────────────────────────────────────────────────────────────────────────────
-# §10  RELATIONSHIP WITH JIAZI  (all types — standard boilerplate)
+# §9  RELATIONSHIP WITH JIAZI  (all types — standard boilerplate)
 # ──────────────────────────────────────────────────────────────────────────────
-section_10_jiazi:
-  title: "10. Relationship with Jiazi"
+section_9_jiazi:
+  title: "9. Relationship with Jiazi"
   required: true
   applies_to: [theoretical, applied, methodological]
   standard_content: |
@@ -298,10 +293,10 @@ section_10_jiazi:
     - The standard content above must be present verbatim or paraphrased faithfully.
 
 # ──────────────────────────────────────────────────────────────────────────────
-# §11  HUMAN DEBUG NOTES  (all types — identical structure)
+# §10  HUMAN DEBUG NOTES  (all types — identical structure)
 # ──────────────────────────────────────────────────────────────────────────────
-section_11_debug_notes:
-  title: "11. Human Debug Notes"
+section_10_debug_notes:
+  title: "10. Human Debug Notes"
   required: true
   applies_to: [theoretical, applied, methodological]
   format: |
@@ -319,8 +314,8 @@ section_11_debug_notes:
 # ──────────────────────────────────────────────────────────────────────────────
 validation:
   required_sections:
-    all_types: [preamble, §1, §2, §3, §4, §5, §6, §7, §8, §9, §10, §11]
-  section_order: sections must appear in the order §1 through §11
+    all_types: [preamble, §1, §2, §3, §4, §5, §6, §7, §8, §9, §10]
+  section_order: sections must appear in the order §1 through §10
   checks:
     - verify_preamble_present
     - verify_section_sequence_complete
@@ -328,7 +323,6 @@ validation:
     - verify_section_2_matches_research_type
     - verify_section_5_matches_research_type
     - verify_section_6_matches_research_type
-    - verify_output_lists_consistent_with_actionbrief
     - verify_debug_notes_dated
 
 # ──────────────────────────────────────────────────────────────────────────────

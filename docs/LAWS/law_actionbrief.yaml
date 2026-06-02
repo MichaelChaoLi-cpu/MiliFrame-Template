@@ -34,13 +34,13 @@ properties:
 
   tableDictionary:
     type: object
-    description: "Dictionary of tables produced/used in the show. Keys are table IDs; values are table descriptors."
+    description: "Dictionary of tables produced/used in the show. Keys are name-based table identifiers (e.g., 'table_sumstat'); values are table descriptors."
     additionalProperties:
       $ref: "#/$defs/table_item"
 
   figureDictionary:
     type: object
-    description: "Dictionary of figures produced/used in the show. Keys are figure IDs; values are figure descriptors."
+    description: "Dictionary of figures produced/used in the show. Keys are name-based figure identifiers (e.g., 'fig_main_coef'); values are figure descriptors."
     additionalProperties:
       $ref: "#/$defs/figure_item"
 
@@ -194,11 +194,11 @@ $defs:
       tableId:
         type: string
         minLength: 1
-        description: "Table identifier/number (e.g., 'Table 1', 'Table S2')."
+        description: "Name-based table identifier, no numbers (e.g., 'table_sumstat', 'table_main_reg'). Numbering for the manuscript is managed elsewhere."
       tablePath:
         type: string
         minLength: 1
-        description: "Relative path to the table file within the show directory (e.g., 'tables/Table1_DataSummary.xlsx')."
+        description: "Relative path to the table file within the show directory (e.g., 'tables/table_sumstat.xlsx')."
       tableCaption:
         type: string
         minLength: 1
@@ -230,11 +230,11 @@ $defs:
       figureId:
         type: string
         minLength: 1
-        description: "Figure identifier/number (e.g., 'Figure 1', 'Figure S3')."
+        description: "Name-based figure identifier, no numbers (e.g., 'fig_main_coef', 'fig_global_variation'). Numbering for the manuscript is managed elsewhere."
       figurePath:
         type: string
         minLength: 1
-        description: "Relative path to the figure file within the show directory (e.g., 'figures/fig05_global_variation.jpg')."
+        description: "Relative path to the figure file within the show directory (e.g., 'figures/fig_main_coef.png')."
       figureCaption:
         type: string
         minLength: 1

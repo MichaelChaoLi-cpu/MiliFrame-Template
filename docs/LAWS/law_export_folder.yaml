@@ -21,19 +21,19 @@ required_structure:
   export:
     figures:
       description: Final figures used in the manuscript.
-      file_pattern: "fig*.png | fig*.jpg"
-      naming_rule: "figXX_description.ext"
+      file_pattern: "fig_*.png | fig_*.jpg"
+      naming_rule: "fig_XXX.ext  (XXX = short name abbreviation, no numbers)"
       example:
-        - fig01_global_distribution.png
-        - fig02_model_accuracy.png
+        - fig_global_distribution.png
+        - fig_model_accuracy.png
 
     tables:
       description: Final tables used in the manuscript.
-      file_pattern: "Table*.xlsx"
-      naming_rule: "TableX_description.xlsx"
+      file_pattern: "table_*.xlsx"
+      naming_rule: "table_XXX.xlsx  (XXX = short name abbreviation, no numbers)"
       example:
-        - Table1_DataSummary.xlsx
-        - Table2_ModelPerformance.xlsx
+        - table_sumstat.xlsx
+        - table_main_reg.xlsx
 
     code:
       description: Minimal reproducible code required to regenerate the core results.
@@ -89,8 +89,9 @@ integration_rules:
   - export/AnaSOP.md must be present at the export/ root.
 
 naming_conventions:
-  figures_prefix: "fig"
-  tables_prefix: "Table"
+  figures_prefix: "fig_"
+  tables_prefix: "table_"
+  note: "No sequential numbers in filenames. Manuscript numbering is managed by a separate document."
 
 validation:
   checks:
